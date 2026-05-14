@@ -9,6 +9,7 @@ import time
 from src.recommender import CrossSellRecommender
 from src.evaluator import ModelEvaluator
 from src.utils import format_currency, get_category_icon, truncate_name, color_by_score, load_or_train_models
+from data.generate_data import generate_data
 
 # --- CONFIGURATION ---
 st.set_page_config(page_title="Cross-Sell Recommender", page_icon="🛒", layout="wide", initial_sidebar_state="expanded")
@@ -93,10 +94,8 @@ st.markdown("""
 def load_data():
     file_path = "data/sample_transactions.csv"
     if not os.path.exists(file_path):
-        with st.spinner("Generating initial synthetic dataset... this may take a moment."):
-            os.system("python data/generate_data.py")
-        if not os.path.exists(file_path):
-            return pd.DataFrame()
+        os.makedirs("data", exist_ok=True)
+        generate_data(50000)
     df = pd.read_csv(file_path)
     df['transaction_date'] = pd.to_datetime(df['transaction_date'])
     return df
@@ -380,7 +379,8 @@ elif page == "Settings and Data":
     st.write("Generate a fresh batch of 50,000 synthetic transactions.")
     if st.button("Generate Synthetic Data"):
         with st.spinner("Generating dataset..."):
-            os.system("python data/generate_data.py")
+            os.makedirs("data", exist_ok=True)
+            generate_data(50000)
             st.cache_data.clear()
             st.success("Data generated successfully!")
             st.rerun()
