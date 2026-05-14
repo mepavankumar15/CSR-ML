@@ -93,7 +93,10 @@ st.markdown("""
 def load_data():
     file_path = "data/sample_transactions.csv"
     if not os.path.exists(file_path):
-        return pd.DataFrame()
+        with st.spinner("Generating initial synthetic dataset... this may take a moment."):
+            os.system("python data/generate_data.py")
+        if not os.path.exists(file_path):
+            return pd.DataFrame()
     df = pd.read_csv(file_path)
     df['transaction_date'] = pd.to_datetime(df['transaction_date'])
     return df
